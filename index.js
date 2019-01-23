@@ -1,139 +1,75 @@
-const puppeteer = require("puppeteer");
-const { emailID, password } = require('./credentials.json');
 const fs = require("fs");
-const util = require('util');
+const { printBars } = require("./bars");
+const scrapeZomatoOrders = require("./zomato")
 
-const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:61.0) Gecko/20100101 Firefox/61.0';
-
-const ZOMATO_BASE_URL = "https://www.zomato.com"
-
-const LOG_IN_BUTTON_SELECTOR_ONE = "#signin-link"
-const LOG_IN_BUTTON_SELECTOR_TWO = "#login-email"
-
-const USERNAME_SELECTOR = "#ld-email"
-const PASSWORD_SELECTOR = "#ld-password"
-const LOG_IN_SUBMIT_BUTTON = "#ld-submit-global"
-
-const ORDER_SELECTOR = ".order-history-snippet";
-const RESTAURANT_SELECTOR = "div.nowrap";
-const COST_SELECTOR = ".cost";
-const DATE_SELECTOR = "div.ui.basic.label";
-const STATUS_SELECTOR = ".right.floated"
-
-const randomDelay = async (page, seconds) => page.waitFor(Math.random() * seconds * 1000);
-
-const getCost = async (order) => order.$eval(COST_SELECTOR, it => parseFloat(parseFloat(it.innerText.slice(1)).toFixed(2)))
-const getDate = async (order) => order.$eval(DATE_SELECTOR, it => it.innerText.trim())
-const getRestaurant = async (order) => order.$eval(RESTAURANT_SELECTOR, it => it.innerText.trim())
-const getStatus = async (order) => order.$eval(STATUS_SELECTOR, it => it.innerText.trim())
-
-const extractHighlightsOfOrder = async (order) => ({ 
-  cost: await getCost(order),
-  date: await getDate(order),
-  restaurant: await getRestaurant(order),
-  status: await getStatus(order),
-});
-
-const inputText = async (page, selector, text) => {
-  await randomDelay(page, 2);
-  await page.click(selector);
-  await page.keyboard.type(text);
+const DayMap = {
+  0: "Sunday",
+  1: "Monday",
+  2: "Tuesday",
+  3: "Wednesday",
+  4: "Thursday",
+  5: "Friday",
+  6: "Saturday"
 }
 
-async function extractOrders(page) {
-  const result = [];
-
-  const orders = await page.$$(ORDER_SELECTOR);
-
-  for (let index = 0; index < orders.length; index += 1) {
-    try {
-      const highlights = await extractHighlightsOfOrder(orders[index]);
-      result.push(highlights);
-    } catch (error) {
-      console.log(error)
-      process.exit()
+const groupBySum = (arr, keySelector, valueSelector) => {
+  return arr.reduce((acc, item) => {
+    const key = keySelector(item);
+    const value = valueSelector(item);
+    
+    if (acc[key]) {
+      acc[key] += value
+    } else {
+      acc[key] = value
     }
-  }
-
-  return result;
+    
+    return acc
+  }, {})
 }
 
-async function loginToZomato(page) {
-  await page.goto(ZOMATO_BASE_URL, {
-    waitUntil: 'networkidle2',
-  });
 
-  await page.click(LOG_IN_BUTTON_SELECTOR_ONE);
-  try {
-    await page.waitForSelector(LOG_IN_BUTTON_SELECTOR_TWO);
-  } catch(e) {
-    await page.screenshot({path: 'error.png'});
-  }
+async function main() {
+
+  const ordersFromZomato = await scrapeZomatoOrders()
+  fs.writeFileSync("orders.json", JSON.stringify(ordersFromZomato))
+
+  const isDelivered = ({status}) => status == "Delivered"
+  const orders = JSON.parse(fs.readFileSync("orders.json")).filter(isDelivered)
+
+  const getOrderCost = order => order.cost
+
+  const getOrderRestaurant = order => order.restaurant
+  const ordersByRestaurant = groupBySum(orders, getOrderRestaurant, getOrderCost);
+
+  const getOrderMonth = order => order.date.slice(3)
+  const ordersByMonth = groupBySum(orders, getOrderMonth, getOrderCost);
+
+  const getOrderDay = order => DayMap[new Date(order.date).getDay()]
+  const ordersByDay = groupBySum(orders, getOrderDay, getOrderCost);
   
-  await page.click(LOG_IN_BUTTON_SELECTOR_TWO);
-  await inputText(page, USERNAME_SELECTOR, emailID);
-  await inputText(page, PASSWORD_SELECTOR, password);
+  const getOrderDate = order => new Date(order.date).getDate()
+  const ordersByDate = groupBySum(orders, getOrderDate, getOrderCost);
+  
+  console.log("Top Restaurants\n")
+  printBars(ordersByRestaurant)
 
+  // console.log("\n --- \n")
+  // console.log("Top Months\n")
+  // printBars(ordersByMonth, {top: 5})
 
-  await page.click(LOG_IN_SUBMIT_BUTTON);
+  console.log("\n --- \n")
+  console.log("Last 24 Months\n")
+  const sortByEarliest = (a, b) => Date.parse(`01 ${b.label}`) - Date.parse(`01 ${a.label}`)
+  printBars(ordersByMonth, { sortFn: sortByEarliest, top: 24})
+
+  console.log("\n --- \n")
+  console.log("Days\n")
+  printBars(ordersByDay)
+
+  // console.log("\n --- \n")
+  // console.log("Dates\n")
+  // const sortByLabelAsc = (a, b) => a.label - b.label
+  // printBars(ordersByDate, { sortFn: sortByLabelAsc, top: 31})
 }
 
-async function extractProfileID(page) {
-
-  const profileUrls = await page.$$eval('a.item', links =>
-    links
-      .map(link => link.href)
-      .filter((url) => url.startsWith("https://www.zomato.com/users/"))
-  );
-
-  // console.log(profileUrls)
-
-  if (Array.isArray(profileUrls) && profileUrls.length > 0) {
-    return profileUrls[0].replace("https://www.zomato.com/users/", "").split("/")[0]
-  }
-
-  throw "No profile links were found!"
-}
-
-async function scrollToBottom(page) {
-  const LOAD_MORE_SELECTOR = "#order-history-load-more > button:nth-child(1)"
-  while(true) {
-    try {
-      await page.click(LOAD_MORE_SELECTOR);
-      await page.waitForSelector(LOAD_MORE_SELECTOR);
-    } catch(e) {
-      console.log(e)
-      await page.screenshot({path: 'error_load_more.png'});
-      break
-    }  
-  }
-}
-async function scrapeZomatoOrders() {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  await page.setUserAgent(USER_AGENT);
-  await page.setExtraHTTPHeaders({
-    'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
-  });
-
-  await loginToZomato(page);
-  await randomDelay(page, 5);
-  const profileID = await extractProfileID(page)
-  // console.log(profileID)
-
-  const ORDERS_PAGE_URL = `https://www.zomato.com/users/${profileID}/ordering`
-  await page.goto(ORDERS_PAGE_URL, {
-    waitUntil: 'networkidle2',
-  });
-
-  await scrollToBottom(page)
-
-  const orders = await extractOrders(page);
-  console.log(orders)
-
-  await page.close();
-  await browser.close();
-};
-
-scrapeZomatoOrders()
+main()
