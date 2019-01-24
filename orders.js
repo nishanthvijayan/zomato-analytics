@@ -6,10 +6,11 @@ const getOrderMonth = order => order.date.slice(3);
 const getOrderDay = order => getDayName(order.date);
 const getOrderDate = order => new Date(order.date).getDate();
 
+const sortByEarliestMonth = (a, b) => Date.parse(`01 ${b.label}`) - Date.parse(`01 ${a.label}`);
+const sortByLabelAsc = (a, b) => a.label - b.label;
+
 const printOrdersByDateGraph = (orders) => {
   const ordersByDate = groupBySum(orders, getOrderDate, getOrderCost);
-
-  const sortByLabelAsc = (a, b) => a.label - b.label;
   printBars(ordersByDate, { sortFn: sortByLabelAsc, top: 31 });
 };
 
@@ -20,14 +21,12 @@ const printOrdersByDayGraph = (orders) => {
 
 const printTopMonthGraph = (orders, n) => {
   const ordersByMonth = groupBySum(orders, getOrderMonth, getOrderCost);
-
-  const sortByEarliest = (a, b) => Date.parse(`01 ${b.label}`) - Date.parse(`01 ${a.label}`);
-  printBars(ordersByMonth, { sortFn: sortByEarliest, top: n });
+  printBars(ordersByMonth, { top: n });
 };
 
 const printOrdersOfLastMonthsGraph = (orders, n) => {
   const ordersByMonth = groupBySum(orders, getOrderMonth, getOrderCost);
-  printBars(ordersByMonth, { top: n });
+  printBars(ordersByMonth, { sortFn: sortByEarliestMonth, top: n });
 };
 
 const printOrderByRestaurantsGraph = (orders, n) => {

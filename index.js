@@ -1,13 +1,11 @@
 const cli = require('commander');
 const fs = require('fs');
-const scrapeZomatoOrders = require('./zomato');
 const {
   printOrderByRestaurantsGraph,
-  printTopMonthGraph,
   printOrdersOfLastMonthsGraph,
   printOrdersByDayGraph,
-  printOrdersByDateGraph,
-} = require('orders.js');
+} = require('./orders.js');
+const scrapeZomatoOrders = require('./zomato');
 
 const ORDERS_OUTPUT_FILE = 'orders.json';
 const readOrdersFromFile = () => JSON.parse(fs.readFileSync(ORDERS_OUTPUT_FILE));
@@ -34,23 +32,17 @@ async function main() {
     }
   }
 
-  const isOrderDelivered = ({ status }) => status === 'Delivered'
+  const isOrderDelivered = ({ status }) => status === 'Delivered';
   const deliveredOrders = orders.filter(isOrderDelivered);
 
   console.log('Top Restaurants\n');
-  printOrderByRestaurantsGraph(deliveredOrders, 5);
-
-  console.log('\n\nTop Months\n');
-  printTopMonthGraph(deliveredOrders, 5);
+  printOrderByRestaurantsGraph(deliveredOrders, 10);
 
   console.log('\n\nLast 24 Months\n');
   printOrdersOfLastMonthsGraph(deliveredOrders, 24);
 
   console.log('\n\nDays\n');
   printOrdersByDayGraph(deliveredOrders);
-
-  console.log('\n\nDates\n');
-  printOrdersByDateGraph(deliveredOrders);
 }
 
 main();
