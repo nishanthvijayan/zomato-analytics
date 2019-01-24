@@ -1,14 +1,16 @@
 const fs = require('fs');
-const { printBars } = require('./bars');
+const { printBars } = require('./utils');
 const scrapeZomatoOrders = require('./zomato');
 const { groupBySum, getDayName } = require('./utils.js');
 
+const ORDERS_OUTPUT_FILE = 'orders.json';
+
 async function main() {
   const ordersFromZomato = await scrapeZomatoOrders();
-  fs.writeFileSync('orders.json', JSON.stringify(ordersFromZomato));
+  fs.writeFileSync(ORDERS_OUTPUT_FILE, JSON.stringify(ordersFromZomato));
 
   const isDelivered = ({ status }) => status === 'Delivered';
-  const orders = JSON.parse(fs.readFileSync('orders.json')).filter(isDelivered);
+  const orders = JSON.parse(fs.readFileSync(ORDERS_OUTPUT_FILE)).filter(isDelivered);
 
   const getOrderCost = order => order.cost;
 
