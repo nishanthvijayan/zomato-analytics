@@ -1,47 +1,16 @@
 const cli = require('commander');
 const fs = require('fs');
-const { printBars } = require('./utils');
 const scrapeZomatoOrders = require('./zomato');
-const { groupBySum, getDayName } = require('./utils.js');
+const {
+  printOrderByRestaurantsGraph,
+  printTopMonthGraph,
+  printOrdersOfLastMonthsGraph,
+  printOrdersByDayGraph,
+  printOrdersByDateGraph,
+} = require('orders.js');
 
 const ORDERS_OUTPUT_FILE = 'orders.json';
 const readOrdersFromFile = () => JSON.parse(fs.readFileSync(ORDERS_OUTPUT_FILE));
-
-const isOrderDelivered = order => order.status === 'Delivered';
-const getOrderCost = order => order.cost;
-const getOrderRestaurant = order => order.restaurant;
-const getOrderMonth = order => order.date.slice(3);
-const getOrderDay = order => getDayName(order.date);
-const getOrderDate = order => new Date(order.date).getDate();
-
-const printOrdersByDateGraph = (orders) => {
-  const ordersByDate = groupBySum(orders, getOrderDate, getOrderCost);
-
-  const sortByLabelAsc = (a, b) => a.label - b.label;
-  printBars(ordersByDate, { sortFn: sortByLabelAsc, top: 31 });
-};
-
-const printOrdersByDayGraph = (orders) => {
-  const ordersByDay = groupBySum(orders, getOrderDay, getOrderCost);
-  printBars(ordersByDay);
-};
-
-const printTopMonthGraph = (orders, n) => {
-  const ordersByMonth = groupBySum(orders, getOrderMonth, getOrderCost);
-
-  const sortByEarliest = (a, b) => Date.parse(`01 ${b.label}`) - Date.parse(`01 ${a.label}`);
-  printBars(ordersByMonth, { sortFn: sortByEarliest, top: n });
-};
-
-const printOrdersOfLastMonthsGraph = (orders, n) => {
-  const ordersByMonth = groupBySum(orders, getOrderMonth, getOrderCost);
-  printBars(ordersByMonth, { top: n });
-};
-
-const printOrderByRestaurantsGraph = (orders, n) => {
-  const ordersByRestaurant = groupBySum(orders, getOrderRestaurant, getOrderCost);
-  printBars(ordersByRestaurant, { top: n });
-};
 
 const parseCLIArgs = () => {
   cli
@@ -65,22 +34,23 @@ async function main() {
     }
   }
 
-  orders = orders.filter(isOrderDelivered);
+  const isOrderDelivered = ({ status }) => status === 'Delivered'
+  const deliveredOrders = orders.filter(isOrderDelivered);
 
   console.log('Top Restaurants\n');
-  printOrderByRestaurantsGraph(orders, 5);
+  printOrderByRestaurantsGraph(deliveredOrders, 5);
 
   console.log('\n\nTop Months\n');
-  printTopMonthGraph(orders, 5);
+  printTopMonthGraph(deliveredOrders, 5);
 
   console.log('\n\nLast 24 Months\n');
-  printOrdersOfLastMonthsGraph(orders, 24);
+  printOrdersOfLastMonthsGraph(deliveredOrders, 24);
 
   console.log('\n\nDays\n');
-  printOrdersByDayGraph(orders);
+  printOrdersByDayGraph(deliveredOrders);
 
   console.log('\n\nDates\n');
-  printOrdersByDateGraph(orders);
+  printOrdersByDateGraph(deliveredOrders);
 }
 
 main();
