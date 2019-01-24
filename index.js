@@ -1,30 +1,7 @@
 const fs = require('fs');
 const { printBars } = require('./bars');
 const scrapeZomatoOrders = require('./zomato');
-
-const DayMap = {
-  0: 'Sunday',
-  1: 'Monday',
-  2: 'Tuesday',
-  3: 'Wednesday',
-  4: 'Thursday',
-  5: 'Friday',
-  6: 'Saturday',
-};
-
-const groupBySum = (arr, keySelector, valueSelector) => arr.reduce((acc, item) => {
-  const key = keySelector(item);
-  const value = valueSelector(item);
-
-  if (acc[key]) {
-    acc[key] += value;
-  } else {
-    acc[key] = value;
-  }
-
-  return acc;
-}, {});
-
+const { groupBySum, getDayName } = require('./utils.js');
 
 async function main() {
   const ordersFromZomato = await scrapeZomatoOrders();
@@ -41,7 +18,7 @@ async function main() {
   const getOrderMonth = order => order.date.slice(3);
   const ordersByMonth = groupBySum(orders, getOrderMonth, getOrderCost);
 
-  const getOrderDay = order => DayMap[new Date(order.date).getDay()];
+  const getOrderDay = order => getDayName(order.date);
   const ordersByDay = groupBySum(orders, getOrderDay, getOrderCost);
 
   // const getOrderDate = order => new Date(order.date).getDate();
