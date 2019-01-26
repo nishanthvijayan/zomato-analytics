@@ -10,6 +10,16 @@ const DAY_MAP = {
   6: 'Saturday',
 };
 
+const DAY_MAP_INVERSE = {
+  Sunday: 0,
+  Monday: 1,
+  Tuesday: 2,
+  Wednesday: 3,
+  Thursday: 4,
+  Friday: 5,
+  Saturday: 6,
+};
+
 const getDayName = date => DAY_MAP[new Date(date).getDay()];
 
 const groupBySum = (arr, keySelector, valueSelector) => arr.reduce((acc, item) => {
@@ -50,4 +60,6 @@ const printBars = (data, { top = 10, width = 75, sortFn = sortByValueDesc } = {}
     });
 };
 
-module.exports = { getDayName, groupBySum, printBars };
+module.exports = {
+  getDayName, groupBySum, printBars, DAY_MAP_INVERSE,
+};

@@ -1,4 +1,6 @@
-const { groupBySum, getDayName, printBars } = require('./utils.js');
+const {
+  groupBySum, getDayName, printBars, DAY_MAP_INVERSE,
+} = require('./utils.js');
 
 const getOrderCost = order => parseFloat(order.cost);
 const getOrderRestaurant = order => order.restaurant;
@@ -7,6 +9,7 @@ const getOrderDay = order => getDayName(order.date);
 const getOrderDate = order => new Date(order.date).getDate();
 
 const sortByEarliestMonth = (a, b) => Date.parse(`01 ${b.label}`) - Date.parse(`01 ${a.label}`);
+const sortByEarliestDay = (a, b) => DAY_MAP_INVERSE[a.label] - DAY_MAP_INVERSE[b.label];
 const sortByLabelAsc = (a, b) => a.label - b.label;
 
 const printOrdersByDateGraph = (orders) => {
@@ -16,7 +19,7 @@ const printOrdersByDateGraph = (orders) => {
 
 const printOrdersByDayGraph = (orders) => {
   const ordersByDay = groupBySum(orders, getOrderDay, getOrderCost);
-  printBars(ordersByDay);
+  printBars(ordersByDay, { sortFn: sortByEarliestDay });
 };
 
 const printTopMonthGraph = (orders, n) => {
