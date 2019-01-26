@@ -1,6 +1,6 @@
 const { groupBySum, getDayName, printBars } = require('./utils.js');
 
-const getOrderCost = order => order.cost;
+const getOrderCost = order => parseFloat(order.cost);
 const getOrderRestaurant = order => order.restaurant;
 const getOrderMonth = order => order.date.slice(3);
 const getOrderDay = order => getDayName(order.date);
