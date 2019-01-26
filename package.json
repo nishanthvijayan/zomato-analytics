@@ -1,5 +1,5 @@
 {
-  "name": "spend_analyzer",
+  "name": "zomato-analytics",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^2.4.2",
     "commander": "^2.19.0",
     "puppeteer": "^1.11.0"
   },

@@ -1,3 +1,5 @@
+const chalk = require('chalk');
+
 const DAY_MAP = {
   0: 'Sunday',
   1: 'Monday',
@@ -25,7 +27,7 @@ const groupBySum = (arr, keySelector, valueSelector) => arr.reduce((acc, item) =
 
 const sortByValueDesc = (a, b) => b.value - a.value;
 
-const printBars = (data, { top = 10, width = 100, sortFn = sortByValueDesc } = {}) => {
+const printBars = (data, { top = 10, width = 75, sortFn = sortByValueDesc } = {}) => {
   const block = '\u2580';
   const labelValueArr = Object.entries(data)
     .map(([key, value]) => ({ label: key, value }));
@@ -39,10 +41,10 @@ const printBars = (data, { top = 10, width = 100, sortFn = sortByValueDesc } = {
       const truncatedValue = Math.trunc(value);
 
       console.log(
-        label,
+        chalk.yellowBright.bold(label),
         ' '.repeat(25 - label.length),
-        `₹${truncatedValue}`,
-        ' '.repeat(8 - truncatedValue.toString().length),
+        chalk.redBright(`₹${truncatedValue}`),
+        ' '.repeat(5 - truncatedValue.toString().length),
         block.repeat(width * truncatedValue / maxValue),
       );
     });

@@ -1,4 +1,6 @@
 const cli = require('commander');
+const chalk = require('chalk');
+
 const fs = require('fs');
 const {
   printOrderByRestaurantsGraph,
@@ -27,21 +29,21 @@ async function main() {
 
   const isOrderDelivered = ({ status }) => status === 'Delivered';
   const deliveredOrders = orders.filter(isOrderDelivered);
-  console.log(`Your total delivered orders are: ${deliveredOrders.length}`);
+  console.log(chalk.bold(`\nYour total delivered orders are: ${chalk.cyan.bold(deliveredOrders.length)}`));
 
   console.log(SECTION_BREAK);
 
-  console.log("Top 10 Restaurants from where you've ordered:\n");
+  console.log(chalk.bold("Top 10 Restaurants from where you've ordered:"));
   printOrderByRestaurantsGraph(deliveredOrders, 10);
 
   console.log(SECTION_BREAK);
 
-  console.log('Distribution of your spendings over the last 12 Months\n');
+  console.log(chalk.bold('Distribution of your spendings over the last 12 Months:'));
   printOrdersOfLastMonthsGraph(deliveredOrders, 12);
 
   console.log(SECTION_BREAK);
 
-  console.log('Weekday wise distribution of your spendings\n');
+  console.log(chalk.bold('Weekday wise distribution of your spendings:'));
   printOrdersByDayGraph(deliveredOrders);
 }
 
