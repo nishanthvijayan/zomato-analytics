@@ -72,13 +72,18 @@ async function extractProfileID(page) {
 }
 
 async function scrollToBottom(page) {
-  try {
-    await page.click(LOAD_MORE_SELECTOR);
-    await page.waitForSelector(LOAD_MORE_SELECTOR, { visible: true, timeout: 5000 });
-    scrollToBottom(page);
-  } catch (e) {
-    // TODO: Print error only if its not a timeout error
-    console.log(e);
+  while (true) {
+    try {
+      await page.click(LOAD_MORE_SELECTOR);
+      await page.waitForSelector(LOAD_MORE_SELECTOR, { visible: true, timeout: 5000 });
+      await randomDelay(page, 5);
+    } catch (e) {
+      if (e.name === 'TimeoutError') {
+        console.log(e);
+      }
+
+      break;
+    }
   }
 }
 
