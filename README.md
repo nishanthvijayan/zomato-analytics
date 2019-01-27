@@ -8,19 +8,8 @@
 
 `zomato-analytics` needs to login to your Zomato account in order to scrape your order history. Your Zomato account username/email and password lives on your local file system. If you don't feel comfortable entering these details, you can audit the code yourself to be sure that this information is not used in any evil way.  
   
-## Setup
-
-Your credentials for Zomato should be stored in a file named `credentials.json` in the following format.
-```
-{
-    "emailID": "example.email@gmail.com",
-    "password": "example password"
-}
-```
-Look at the `credentials.example.json` file for reference.
-
-## Executing the script
-First install the required dependencies by running: 
+## Quickstart
+Install the required dependencies by running: 
 ```
 npm install
 ```
@@ -29,6 +18,8 @@ To start the script, use:
 ```
 node index.js
 ```
+
+When running the tool for the first time, you'll be prompted to enter your Zomato usernam/email & password.  
 
 ### Options
 To save your orders to a json file, use the `-s` / `--save` option:
