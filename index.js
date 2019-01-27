@@ -22,7 +22,7 @@ const writeOrdersToFile = (orders, file) => fs.writeFileSync(file, JSON.stringif
 const conf = new Configstore(pkg.name);
 
 const getCredentialsFromPrompt = async () => {
-  console.log("Please enter your Zomato credentials")
+  console.log('Please enter your Zomato credentials');
 
   emailID = await promptly.prompt('Username / Email: ', { trim: true });
   password = await promptly.prompt('Password: ', { trim: true, silent: true, replace: '*' });
