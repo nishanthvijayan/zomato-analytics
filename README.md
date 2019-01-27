@@ -1,6 +1,6 @@
 # zomato-analytics
   
-![Stats](images/screenshot_summary.png)
+![zomato-analytics](images/screenshot_summary.png)
 
 `zomato-analytics` is a cli tool to help you analyse your zomato orders. This project is heavily inspired by [swiggy-analytics](https://github.com/mr-karan/swiggy-analytics).
 
@@ -9,14 +9,30 @@
 `zomato-analytics` needs to login to your Zomato account in order to scrape your order history. Your Zomato account username/email and password lives on your local file system. If you don't feel comfortable entering these details, you can audit the code yourself to be sure that this information is not used in any evil way.  
   
 ## Quickstart
-Install the required dependencies by running: 
+
+### Installation
 ```
-npm install
+npm install -g zomato-analytics
 ```
 
-To start the script, use:
+Use `sudo` if required.  
+  
+#### Note:  
+If installation fails with this error: 
 ```
-node index.js
+Download failed: EACCES: permission denied, mkdir '/usr/local/lib/node_modules/puppeteer/.local-chromium'
+
+```
+try:
+```
+sudo npm install -g zomato-analytics --unsafe-perm=true
+```
+  
+
+### Usage
+  
+```
+zomato-analytics
 ```
 
 When running the tool for the first time, you'll be prompted to enter your Zomato username/emailID & password. The values you enter will be stored in `~/.config/configstore/zomato-analytics.json`
@@ -24,17 +40,17 @@ When running the tool for the first time, you'll be prompted to enter your Zomat
 ## Options
 To update your stored username/email or password, user the `-c` / `--configure` option:
 ```
-node index.js --configure
+zomato-analytics --configure
 ```
   
 
 To save your orders to a json file, use the `-s` / `--save` option:
 ```
-node index.js --save somefile.json
+zomato-analytics --save somefile.json
 ```
 
 
 To read your orders from a json file instead of crawling zomato, use the `-i` / `--input` option:
 ```
-node index.js --input somefile.json
+zomato-analytics --input somefile.json
 ```
