@@ -1,6 +1,6 @@
 {
   "name": "zomato-analytics",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Analyse your Zomato orders",
   "main": "index.js",
   "scripts": {
@@ -18,6 +18,9 @@
     "configstore": "^4.0.0",
     "promptly": "^3.0.3",
     "puppeteer": "^1.11.0"
+  },
+  "bin": {
+    "zomato-analytics": "./index.js"
   },
   "devDependencies": {
     "eslint": "^5.12.1",

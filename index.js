@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const chalk = require('chalk');
 const cli = require('commander');
 const Configstore = require('configstore');
@@ -77,7 +79,7 @@ async function main() {
 
 (async () => {
   cli
-    .version('0.1.0')
+    .version(pkg.version)
     .option('-i, --input <file>', 'Read orders from file')
     .option('-s, --save <file>', 'Save the extracted orders to file')
     .option('-c, --configure', 'Update your user credentials')
