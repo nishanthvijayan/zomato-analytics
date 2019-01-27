@@ -19,8 +19,8 @@ To start the script, use:
 node index.js
 ```
 
-When running the tool for the first time, you'll be prompted to enter your Zomato usernam/email & password.  
-
+When running the tool for the first time, you'll be prompted to enter your Zomato username/emailID & password. The values you enter will be stored in `~/.config/configstore/zomato-analytics.json`
+  
 ### Options
 To save your orders to a json file, use the `-s` / `--save` option:
 ```
