@@ -1,12 +1,16 @@
 {
   "name": "zomato-analytics",
   "version": "1.0.0",
-  "description": "",
+  "description": "Analyse your Zomato orders",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "lint": "eslint --fix ."
   },
-  "author": "",
+  "author": {
+    "name": "Nishanth Vijayan",
+    "email": "nishanthvijayan1995@gmail.com"
+  },
   "license": "ISC",
   "dependencies": {
     "chalk": "^2.4.2",
