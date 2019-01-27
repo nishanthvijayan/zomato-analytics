@@ -21,7 +21,13 @@ node index.js
 
 When running the tool for the first time, you'll be prompted to enter your Zomato username/emailID & password. The values you enter will be stored in `~/.config/configstore/zomato-analytics.json`
   
-### Options
+## Options
+To update your stored username/email or password, user the `-c` / `--configure` option:
+```
+node index.js --configure
+```
+  
+
 To save your orders to a json file, use the `-s` / `--save` option:
 ```
 node index.js --save somefile.json
