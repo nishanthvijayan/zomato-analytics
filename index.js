@@ -1,6 +1,5 @@
 const cli = require('commander');
 const chalk = require('chalk');
-
 const fs = require('fs');
 const {
   printOrderByRestaurantsGraph,
@@ -11,19 +10,18 @@ const scrapeZomatoOrders = require('./zomato');
 
 const SECTION_BREAK = '\n\n';
 
-const ORDERS_OUTPUT_FILE = 'orders.json';
-const readOrdersFromFile = () => JSON.parse(fs.readFileSync(ORDERS_OUTPUT_FILE));
-const writeOrdersToFile = orders => fs.writeFileSync(ORDERS_OUTPUT_FILE, JSON.stringify(orders));
+const readOrdersFromFile = file => JSON.parse(fs.readFileSync(file));
+const writeOrdersToFile = (orders, file) => fs.writeFileSync(file, JSON.stringify(orders));
 
 async function main() {
   let orders;
   if (cli.input) {
-    orders = readOrdersFromFile();
+    orders = readOrdersFromFile(cli.input);
   } else {
     orders = await scrapeZomatoOrders();
 
-    if (cli.output) {
-      writeOrdersToFile(orders);
+    if (cli.save) {
+      writeOrdersToFile(orders, cli.save);
     }
   }
 
@@ -49,8 +47,8 @@ async function main() {
 
 cli
   .version('0.1.0')
-  .option('-i, --input [file]', 'Read order from file')
-  .option('-o, --output [file]', 'Write the extracted orders to file')
+  .option('-i, --input <file>', 'Read orders from file')
+  .option('-s, --save <file>', 'Save the extracted orders to file')
   .parse(process.argv);
 
 main();
