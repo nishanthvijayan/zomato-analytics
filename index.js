@@ -1,6 +1,10 @@
-const cli = require('commander');
 const chalk = require('chalk');
+const cli = require('commander');
+const Configstore = require('configstore');
 const fs = require('fs');
+const promptly = require('promptly');
+const pkg = require('./package.json');
+
 const {
   printOrderByRestaurantsGraph,
   printOrdersOfLastMonthsGraph,
@@ -13,12 +17,31 @@ const SECTION_BREAK = '\n\n';
 const readOrdersFromFile = file => JSON.parse(fs.readFileSync(file));
 const writeOrdersToFile = (orders, file) => fs.writeFileSync(file, JSON.stringify(orders));
 
+const conf = new Configstore(pkg.name);
+const getUserCredentials = async () => {
+  let emailID = conf.get('emailID');
+  let password = conf.get('password');
+
+  if (emailID && password) {
+    return { emailID, password };
+  }
+
+  emailID = await promptly.prompt('Username / Email: ', { trim: true });
+  password = await promptly.prompt('Password: ', { trim: true, silent: true, replace: '*' });
+
+  conf.set('emailID', emailID);
+  conf.set('password', password);
+
+  return { emailID, password };
+};
+
 async function main() {
   let orders;
   if (cli.input) {
     orders = readOrdersFromFile(cli.input);
   } else {
-    orders = await scrapeZomatoOrders();
+    const { emailID, password } = await getUserCredentials();
+    orders = await scrapeZomatoOrders({ emailID, password });
 
     if (cli.save) {
       writeOrdersToFile(orders, cli.save);

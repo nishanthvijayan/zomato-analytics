@@ -11,6 +11,8 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "commander": "^2.19.0",
+    "configstore": "^4.0.0",
+    "promptly": "^3.0.3",
     "puppeteer": "^1.11.0"
   },
   "devDependencies": {

@@ -1,5 +1,4 @@
 const puppeteer = require('puppeteer');
-const { emailID, password } = require('./credentials.json');
 
 const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:61.0) Gecko/20100101 Firefox/61.0';
 const LANGUAGE_HEADERS = {
@@ -44,7 +43,7 @@ const extractOrderDetails = async order => ({
   status: await getStatus(order),
 });
 
-async function loginToZomato(page) {
+async function loginToZomato(page, { emailID, password }) {
   await page.goto(ZOMATO_BASE_URL, {
     waitUntil: 'networkidle2',
   });
@@ -87,14 +86,14 @@ async function scrollToBottom(page) {
   }
 }
 
-async function scrapeZomatoOrders() {
+async function scrapeZomatoOrders({ emailID, password }) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.setUserAgent(USER_AGENT);
   await page.setExtraHTTPHeaders(LANGUAGE_HEADERS);
 
-  await loginToZomato(page);
+  await loginToZomato(page, { emailID, password });
   await randomDelay(page, 5);
 
   const profileID = await extractProfileID(page);
