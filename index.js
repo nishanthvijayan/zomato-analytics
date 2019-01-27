@@ -18,14 +18,8 @@ const readOrdersFromFile = file => JSON.parse(fs.readFileSync(file));
 const writeOrdersToFile = (orders, file) => fs.writeFileSync(file, JSON.stringify(orders));
 
 const conf = new Configstore(pkg.name);
-const getUserCredentials = async () => {
-  let emailID = conf.get('emailID');
-  let password = conf.get('password');
 
-  if (emailID && password) {
-    return { emailID, password };
-  }
-
+const getCredentialsFromPrompt = async () => {
   emailID = await promptly.prompt('Username / Email: ', { trim: true });
   password = await promptly.prompt('Password: ', { trim: true, silent: true, replace: '*' });
 
@@ -33,6 +27,17 @@ const getUserCredentials = async () => {
   conf.set('password', password);
 
   return { emailID, password };
+};
+
+const getUserCredentials = async () => {
+  const emailID = conf.get('emailID');
+  const password = conf.get('password');
+
+  if (emailID && password) {
+    return { emailID, password };
+  }
+
+  return await getCredentialsFromPrompt();
 };
 
 async function main() {
@@ -68,10 +73,19 @@ async function main() {
   printOrdersByDayGraph(deliveredOrders);
 }
 
-cli
-  .version('0.1.0')
-  .option('-i, --input <file>', 'Read orders from file')
-  .option('-s, --save <file>', 'Save the extracted orders to file')
-  .parse(process.argv);
+(async () => {
+  cli
+    .version('0.1.0')
+    .option('-i, --input <file>', 'Read orders from file')
+    .option('-s, --save <file>', 'Save the extracted orders to file')
+    .option('-c, --configure', 'Update your user credentials')
+    .parse(process.argv);
 
-main();
+  if (cli.configure) {
+    await getCredentialsFromPrompt();
+    console.log('Your credentials have been updated');
+    return;
+  }
+
+  main();
+})();
