@@ -11,6 +11,7 @@ const {
   printOrderByRestaurantsGraph,
   printOrdersOfLastMonthsGraph,
   printOrdersByDayGraph,
+  calculateTotalMoneySpent,
 } = require('./orders.js');
 const scrapeZomatoOrders = require('./zomato');
 
@@ -59,7 +60,8 @@ async function main() {
 
   const isOrderDelivered = ({ status }) => status === 'Delivered';
   const deliveredOrders = orders.filter(isOrderDelivered);
-  console.log(chalk.bold(`\nYour total delivered orders are: ${chalk.cyan.bold(deliveredOrders.length)}`));
+  console.log(chalk.bold(`\nYour total delivered orders are: ${deliveredOrders.length}`));
+  console.log(chalk.bold(`Total money spent: ${calculateTotalMoneySpent(orders)}`))
 
   console.log(SECTION_BREAK);
 

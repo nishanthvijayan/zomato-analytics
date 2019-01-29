@@ -12,6 +12,8 @@ const sortByEarliestMonth = (a, b) => Date.parse(`01 ${b.label}`) - Date.parse(`
 const sortByEarliestDay = (a, b) => DAY_MAP_INVERSE[a.label] - DAY_MAP_INVERSE[b.label];
 const sortByLabelAsc = (a, b) => a.label - b.label;
 
+const calculateTotalMoneySpent = orders => orders.reduce((sum, order) => sum + getOrderCost(order), 0).toFixed(2);
+
 const printOrdersByDateGraph = (orders) => {
   const ordersByDate = groupBySum(orders, getOrderDate, getOrderCost);
   printBars(ordersByDate, { sortFn: sortByLabelAsc, top: 31 });
@@ -43,4 +45,5 @@ module.exports = {
   printOrdersOfLastMonthsGraph,
   printOrdersByDayGraph,
   printOrdersByDateGraph,
+  calculateTotalMoneySpent
 };
